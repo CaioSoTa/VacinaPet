@@ -1,4 +1,3 @@
 package vacina.pet.api.dto;
 
-public class LoginResponse {
-}
+public record LoginResponse(Long id, String nome, String email, String perfil) {}

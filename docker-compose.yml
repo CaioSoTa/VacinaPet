@@ -1,0 +1,23 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: petshop-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: petshop_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer:latest
+    container_name: petshop-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
