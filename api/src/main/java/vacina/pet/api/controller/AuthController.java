@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import vacina.pet.api.config.JwtService;
 import vacina.pet.api.dto.LoginRequest;
 import vacina.pet.api.dto.LoginResponse;
 import vacina.pet.api.model.Usuario;
@@ -42,6 +43,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
+    @Autowired
+    private JwtService jwtService;
+
     // Fazer Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginDto) {
@@ -53,18 +57,19 @@ public class AuthController {
 
         Usuario usuario = usuarioOpt.get();
 
-        // Compara a senha digitada em texto puro com o HASH BCrypt salvo no banco
-        boolean senhaValida = passwordEncoder.matches(loginDto.senha(), usuario.getSenha());
-
-        if (!senhaValida) {
+        if (!passwordEncoder.matches(loginDto.senha(), usuario.getSenha())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha inválidos.");
         }
+
+        // Gera o token JWT
+        String token = jwtService.gerarToken(usuario);
 
         return ResponseEntity.ok(new LoginResponse(
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getPerfil()
+                usuario.getPerfil(),
+                token // Retorna o token para o frontend
         ));
     }
 }
